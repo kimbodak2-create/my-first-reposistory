@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>경찰/공공기관 실무 계산기 모음</title>
+    <style>
+        :root {
+            --primary: #1a365d;
+            --secondary: #2b6cb0;
+            --bg-color: #f4f6f9;
+            --border-color: #e2e8f0;
+        }
+        body {
+            font-family: 'Malgun Gothic', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: var(--primary);
+        }
+        .container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .card {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            padding: 20px;
+            border-top: 4px solid var(--secondary);
+        }
+        .card h2 {
+            font-size: 1.2rem;
+            margin-top: 0;
+            color: var(--primary);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background-color: var(--primary);
+        }
+        .result {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #ebf8ff;
+            border-radius: 4px;
+            font-weight: bold;
+            text-align: center;
+            min-height: 20px;
+            word-break: break-all;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            background: var(--primary);
+            color: white;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>경찰/IT 실무 계산기 통합 대시보드</h1>
+    </header>
+
+    <div class="container">
+        
+        <!-- 1. 초과근무 수당 계산기 -->
+        <div class="card">
+            <span class="badge">행정/복무</span>
+            <h2>초과근무 수당 계산기</h2>
+            <div class="form-group">
+                <label>시간당 단가 (원)</label>
+                <input type="number" id="overtime-rate" placeholder="예: 11540" value="11540">
+            </div>
+            <div class="form-group">
+                <label>초과근무 인정 시간 (시간)</label>
+                <input type="number" id="overtime-hours" placeholder="예: 35">
+            </div>
+            <button onclick="calcOvertime()">계산하기</button>
+            <div class="result" id="res-overtime">-</div>
+        </div>
+
+        <!-- 2. 위드마크 공식 계산기 -->
+        <div class="card">
+            <span class="badge">교통/수사</span>
+            <h2>위드마크 혈중알코올농도 추산</h2>
+            <div class="form-group">
+                <label>체중 (kg) / 성별</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="number" id="wm-weight" placeholder="체중">
+                    <select id="wm-gender">
+                        <option value="0.86">남성</option>
+                        <option value="0.64">여성</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label>음주량 (ml) / 도수 (%)</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="number" id="wm-amount" placeholder="예: 360 (소주1병)">
+                    <input type="number" id="wm-abv" placeholder="예: 16">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>음주 후 경과 시간 (시간)</label>
+                <input type="number" id="wm-time" placeholder="예: 3">
+            </div>
+            <button onclick="calcWidmark()">계산하기</button>
+            <div class="result" id="res-widmark">-</div>
+        </div>
+
+        <!-- 3. 만 나이 및 소년범 기준 계산기 -->
+        <div class="card">
+            <span class="badge">형사/여청</span>
+            <h2>만 나이 및 소년범 기준 판별</h2>
+            <div class="form-group">
+                <label>생년월일 (YYYYMMDD)</label>
+                <input type="text" id="age-birth" placeholder="예: 20110515" maxlength="8">
+            </div>
+            <div class="form-group">
+                <label>범행/기준 일자 (YYYYMMDD)</label>
+                <input type="text" id="age-target" placeholder="예: 20260730" maxlength="8">
+            </div>
+            <button onclick="calcAge()">판별하기</button>
+            <div class="result" id="res-age">-</div>
+        </div>
+
+        <!-- 4. IP 서브넷 계산기 -->
+        <div class="card">
+            <span class="badge">정보통신/네트워크</span>
+            <h2>IPv4 서브넷/네트워크 계산기</h2>
+            <div class="form-group">
+                <label>IP 주소</label>
+                <input type="text" id="sub-ip" placeholder="예: 192.168.1.10">
+            </div>
+            <div class="form-group">
+                <label>서브넷 마스크 (CIDR)</label>
+                <div style="display: flex; gap: 10px;">
+                    <span style="line-height: 35px;">/</span>
+                    <input type="number" id="sub-cidr" placeholder="24" min="1" max="32" value="24">
+                </div>
+            </div>
+            <button onclick="calcSubnet()">계산하기</button>
+            <div class="result" id="res-subnet" style="font-size: 0.85rem; text-align: left;">-</div>
+        </div>
+
+        <!-- 5. CCTV/서버 영상 저장용량 계산기 -->
+        <div class="card">
+            <span class="badge">정보통신/장비</span>
+            <h2>CCTV / 스토리지 용량 산정</h2>
+            <div class="form-group">
+                <label>카메라 비트레이트 (Mbps)</label>
+                <input type="number" id="cctv-bitrate" placeholder="예: 4 (일반 FHD)" value="4">
+            </div>
+            <div class="form-group">
+                <label>카메라 대수 (대) / 보존 일수 (일)</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="number" id="cctv-count" placeholder="대수" value="10">
+                    <input type="number" id="cctv-days" placeholder="일수" value="30">
+                </div>
+            </div>
+            <button onclick="calcStorage()">필요 용량 계산</button>
+            <div class="result" id="res-storage">-</div>
+        </div>
+
+        <!-- 6. 네트워크 대역폭 전송시간 계산기 -->
+        <div class="card">
+            <span class="badge">정보통신/인프라</span>
+            <h2>데이터망 전송 소요 시간</h2>
+            <div class="form-group">
+                <label>전송할 파일/데이터 크기 (GB)</label>
+                <input type="number" id="net-size" placeholder="예: 100">
+            </div>
+            <div class="form-group">
+                <label>사용 가능 대역폭 (Mbps)</label>
+                <input type="number" id="net-speed" placeholder="예: 1000 (1Gbps)" value="1000">
+            </div>
+            <button onclick="calcTransfer()">소요 시간 계산</button>
+            <div class="result" id="res-transfer">-</div>
+        </div>
+
+    </div>
+
+    <script>
+        // 1. 초과근무 수당
+        function calcOvertime() {
+            const rate = document.getElementById('overtime-rate').value;
+            const hours = document.getElementById('overtime-hours').value;
+            if(!rate || !hours) return alert("값을 입력하세요.");
+            const total = parseInt(rate) * parseFloat(hours);
+            document.getElementById('res-overtime').innerHTML = `총 수당: ${total.toLocaleString()} 원`;
+        }
+
+        // 2. 위드마크
+        function calcWidmark() {
+            const weight = parseFloat(document.getElementById('wm-weight').value);
+            const gender = parseFloat(document.getElementById('wm-gender').value);
+            const amount = parseFloat(document.getElementById('wm-amount').value);
+            const abv = parseFloat(document.getElementById('wm-abv').value);
+            const hours = parseFloat(document.getElementById('wm-time').value);
+            
+            if(!weight || !amount || !abv || isNaN(hours)) return alert("모든 값을 입력하세요.");
+            
+            // 알코올 질량(g) = 음주량(ml) * 도수(%) / 100 * 0.7894 (알코올 비중)
+            const alcoholMass = amount * (abv / 100) * 0.7894;
+            // 최고 혈중알코올농도
+            const maxBac = alcoholMass / (weight * gender * 10);
+            // 현재 혈중알코올농도 (시간당 0.015% 감소)
+            let currentBac = maxBac - (0.015 * hours);
+            if (currentBac < 0) currentBac = 0;
+
+            document.getElementById('res-widmark').innerHTML = 
+                `추산 혈중알코올농도: <strong>${currentBac.toFixed(3)}%</strong><br>` +
+                `<span style="font-size:0.8rem; font-weight:normal;">(위드마크 공식 적용, 법적 증거와 차이가 있을 수 있음)</span>`;
+        }
+
+        // 3. 만 나이 / 소년범
+        function calcAge() {
+            const birthStr = document.getElementById('age-birth').value;
+            const targetStr = document.getElementById('age-target').value;
+            if(birthStr.length !== 8 || targetStr.length !== 8) return alert("YYYYMMDD 형식 8자리를 입력하세요.");
+            
+            const bYear = parseInt(birthStr.substring(0,4));
+            const bMonth = parseInt(birthStr.substring(4,6));
+            const bDay = parseInt(birthStr.substring(6,8));
+            
+            const tYear = parseInt(targetStr.substring(0,4));
+            const tMonth = parseInt(targetStr.substring(4,6));
+            const tDay = parseInt(targetStr.substring(6,8));
+            
+            let age = tYear - bYear;
+            if (tMonth < bMonth || (tMonth === bMonth && tDay < bDay)) {
+                age--;
+            }
+
+            let status = "성인";
+            if (age < 10) status = "형사미성년자 (범법소년, 처벌불가)";
+            else if (age >= 10 && age < 14) status = "촉법소년 (보호처분 대상)";
+            else if (age >= 14 && age < 19) status = "범죄소년 (형사처벌 가능, 소년법 적용)";
+
+            document.getElementById('res-age').innerHTML = 
+                `만 나이: <strong>${age}세</strong><br>분류: ${status}`;
+        }
+
+        // 4. IP 서브넷
+        function calcSubnet() {
+            const ip = document.getElementById('sub-ip').value;
+            const cidr = parseInt(document.getElementById('sub-cidr').value);
+            if(!ip.match(/^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$/) || cidr < 1 || cidr > 32) return alert("올바른 IP와 CIDR을 입력하세요.");
+            
+            const ipParts = ip.split('.').map(Number);
+            let ipNum = (ipParts[0] << 24) | (ipParts[1] << 16) | (ipParts[2] << 8) | ipParts[3];
+            
+            let maskNum = cidr === 0 ? 0 : (~0 << (32 - cidr));
+            let netNum = ipNum & maskNum;
+            let broadNum = netNum | ~maskNum;
+            
+            const numToIp = (num) => `${(num >>> 24) & 255}.${(num >>> 16) & 255}.${(num >>> 8) & 255}.${num & 255}`;
+            
+            const mask = numToIp(maskNum);
+            const network = numToIp(netNum);
+            const broadcast = numToIp(broadNum);
+            const firstHost = cidr >= 31 ? "N/A" : numToIp(netNum + 1);
+            const lastHost = cidr >= 31 ? "N/A" : numToIp(broadNum - 1);
+            const hosts = cidr >= 31 ? 0 : (Math.pow(2, 32 - cidr) - 2);
+
+            document.getElementById('res-subnet').innerHTML = 
+                `네트워크 ID: ${network}<br>` +
+                `서브넷 마스크: ${mask}<br>` +
+                `가용 IP 범위: ${firstHost} ~ ${lastHost}<br>` +
+                `브로드캐스트: ${broadcast}<br>` +
+                `사용 가능 호스트: ${hosts.toLocaleString()} 개`;
+        }
+
+        // 5. CCTV 스토리지
+        function calcStorage() {
+            const bitrate = parseFloat(document.getElementById('cctv-bitrate').value);
+            const count = parseInt(document.getElementById('cctv-count').value);
+            const days = parseInt(document.getElementById('cctv-days').value);
+            
+            if(!bitrate || !count || !days) return alert("값을 입력하세요.");
+            
+            // 1일 데이터량(GB) = Bitrate(Mbps) * 60 * 60 * 24 / 8(비트->바이트) / 1024 / 1024
+            const gbPerDay = (bitrate * 86400) / 8 / 1024 / 1024;
+            let totalGB = gbPerDay * count * days;
+            let totalTB = totalGB / 1024;
+            
+            document.getElementById('res-storage').innerHTML = 
+                `요구 스토리지: <strong>${totalTB.toFixed(2)} TB</strong><br>` +
+                `<span style="font-size:0.8rem; font-weight:normal;">(RAID 구성 및 포맷 손실분 별도 고려 필요)</span>`;
+        }
+
+        // 6. 파일 전송 시간
+        function calcTransfer() {
+            const sizeGB = parseFloat(document.getElementById('net-size').value);
+            const speedMbps = parseFloat(document.getElementById('net-speed').value);
+            
+            if(!sizeGB || !speedMbps) return alert("값을 입력하세요.");
+            
+            // Size in Megabytes
+            const sizeMB = sizeGB * 1024;
+            // Speed in Megabytes per second
+            const speedMBps = speedMbps / 8;
+            
+            const seconds = sizeMB / speedMBps;
+            
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            const s = Math.floor(seconds % 60);
+            
+            let timeStr = "";
+            if (h > 0) timeStr += `${h}시간 `;
+            if (m > 0) timeStr += `${m}분 `;
+            timeStr += `${s}초`;
+            
+            document.getElementById('res-transfer').innerHTML = 
+                `예상 소요 시간: <strong>${timeStr}</strong><br>` +
+                `<span style="font-size:0.8rem; font-weight:normal;">(실제 회선 오버헤드 미반영한 이론적 최대치)</span>`;
+        }
+    </script>
+</body>
+</html>
